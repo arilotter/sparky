@@ -1,3 +1,5 @@
+#!/home/ari/src/pi-htpc/bin/python3.4
+
 from flask import Flask, render_template, request
 from urllib.request import urlopen
 from movie_scraper import get_streaming_url
@@ -7,7 +9,7 @@ import os
 app = Flask(__name__)
 
 #woohooo vars
-base_path = 'C:/Users/Demo/Desktop/ari' #woohoooo portability
+base_path = '.' #woohoooo portability
 tmp_path = base_path + '/tmp'
 torrent_fifo = tmp_path + '/torrent_fifo'
 player = None
@@ -32,6 +34,7 @@ def send_key(key):
 @app.route('/remote/play_pause')
 def play_pause():
 	player.toggle_pause()
+	return 'dong'
 	
 @app.route('/play', methods=['GET'])
 def play_url():
@@ -41,13 +44,13 @@ def play_url():
 	
 	if type == "audio" or type == "video":
 		play_omxplayer(url)
-	elif type == "text": #let's assume it's a streaming movie?
-		if is_streaming_movie(req):
+	elif type == "text": 
+		if is_streaming_movie(req): # that one kind of streaming movie we can play
 			play_omxplayer(get_streaming_url(url))
 		elif is_youtube_video(url): #pass url cause youtube is just a url
 			pass
 	else:
-		return 'wtf rong url', 400 #u donged up man
+		return 'wtf rong url', 400 # u donged up man better fix it
 	return '', 204 # success! :D
 
 	
