@@ -28,45 +28,119 @@
         <div class="container-fluid">
             <div class="navbar-header">
                 <a class="navbar-brand" href="#">Raspberry Pi Remote</a>
+
             </div>
+            <div class="pull-right">
+				<button class="btn btn-primary" data-toggle="modal" data-target="#sendModal">Send to Pi</button>
+			</div>
+            
         </div>
     </nav>
 
-    <div class="container">
+    <div class="container controls">
         <div class="row row-padded">
-                    <a href="#" data-key="left" class="btn btn-default btn-xl col-xs-3">
-                        <i class="glyphicon glyphicon-step-backward"></i>
-                    </a>
-                    <a href="#" data-key="p" class="btn btn-success btn-xl col-xs-6">
-                        <i class="glyphicon glyphicon-play"></i>/<i class="glyphicon glyphicon-pause"></i>
-                    </a>
-                    <a href="#" data-key="right" class="btn btn-default btn-xl col-xs-3">
-                        <i class="glyphicon glyphicon-step-forward"></i>
-                    </a>
+			<a href="#" data-key="left" class="btn btn-default btn-xl col-xs-3">
+				<i class="glyphicon glyphicon-step-backward"></i>
+			</a>
+			<a href="#" data-key="p" class="btn btn-success btn-xl col-xs-6">
+				<i class="glyphicon glyphicon-play"></i>/<i class="glyphicon glyphicon-pause"></i>
+			</a>
+			<a href="#" data-key="right" class="btn btn-default btn-xl col-xs-3">
+				<i class="glyphicon glyphicon-step-forward"></i>
+			</a>
         </div>
         <div class="row row-padded">
-                    <a href="#" data-key="-" class="btn btn-default btn-xl col-xs-5">
-                        <i class="glyphicon glyphicon-volume-down"></i>
-                    </a>
-                    <a href="#" data-key="q" class="btn btn-default btn-xl col-xs-2 btn-danger">
-                    	<i class="glyphicon glyphicon-stop"></i>
-                    </a>
-                    <a href="#" data-key="+" class="btn btn-default btn-xl col-xs-5">
-                        <i class="glyphicon glyphicon-volume-up"></i>
-                    </a>
+			<a href="#" data-key="-" class="btn btn-default btn-xl col-xs-5">
+				<i class="glyphicon glyphicon-volume-down"></i>
+			</a>
+			<a href="#" data-key="q" class="btn btn-default btn-xl col-xs-2 btn-danger">
+				<i class="glyphicon glyphicon-stop"></i>
+			</a>
+			<a href="#" data-key="+" class="btn btn-default btn-xl col-xs-5">
+				<i class="glyphicon glyphicon-volume-up"></i>
+			</a>
         </div>
     </div>
+    
+	<div class="modal fade" id="sendModal">
+		<div class="modal-dialog">
+			<div class="modal-content">
+			  <div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+				<h4 class="modal-title">Send to Pi</h4>
+			  </div>
+			  <div class="modal-body">
+				<p>Please paste/enter the URL of the content you'd like to send to the Pi.</p>
+				<div class="input-group">
+					<span class="input-group-addon">url</span>
+					<input type="text" class="form-control" id="send-to-pi-url" placeholder="http://example.com/">
+				</div>
+			  </div>
+			  <div class="modal-footer">
+				<button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+				<button type="button" class="btn btn-primary" data-dismiss="modal">Send!</button>
+			  </div>
+			</div>
+		</div>
+	</div>
+	
+	<div class="modal fade" tabindex="-1" role="dialog" aria-hidden="true" id="send-success">
+		<div class="modal-dialog modal-sm">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+					<h4 class="modal-title" id="myModalLabel">Sending success!</h4>
+				</div>
+				<div class="modal-body">
+					Sent to Pi successfully!
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default form-control" data-dismiss="modal">Okay! :)</button>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<div class="modal fade" tabindex="-1" role="dialog" aria-hidden="true" id="send-failure">
+		<div class="modal-dialog modal-sm">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+					<h4 class="modal-title" id="myModalLabel">Sending failed.</h4>
+				</div>
+				<div class="modal-body">
+					Whoops! We don't support that URL yet.
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default form-control" data-dismiss="modal">Okay. :(</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
 
     <script>
         $(document).ready(function () {
-        	$('.btn').click(function () {
+        	$('.controls .btn').click(function () {
                 if (!($(this).hasClass('btn-danger') && !confirm("Are you sure you want to do that?"))) {
 	                $.get('send_key/' + $(this).data('key'));
                 }
                 return false;
             });
+            $('#sendModal .modal-footer .btn-primary').click(function () {
+				$.get('/play?url=' + $('#send-to-pi-url').val()).always(function(data, status, xhr) {
+					//this is teh callback
+					if(xhr.status == 204 || xhr.status == 200) { //success!
+						$('#send-success').modal();
+					} else {
+						$('#send-failure').modal();
+					}
+				});
+				return true;
+			});
         });
     </script>
 </body>
 
 </html>
+ 

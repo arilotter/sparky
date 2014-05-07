@@ -39,19 +39,25 @@ def play_pause():
 @app.route('/play', methods=['GET'])
 def play_url():
 	url = request.args.get('url')
+	print('looking up url %s' % url)
 	req = urlopen(url)
 	type = req.headers['content-type'].split('/')[0]
-	
-	if type == "audio" or type == "video":
-		play_omxplayer(url)
-	elif type == "text": 
-		if is_streaming_movie(req): # that one kind of streaming movie we can play
-			play_omxplayer(get_streaming_url(url))
-		elif is_youtube_video(url): #pass url cause youtube is just a url
-			pass
-	else:
-		return 'wtf rong url', 400 # u donged up man better fix it
-	return '', 204 # success! :D
+	try:
+		if type == "audio" or type == "video":
+			play_omxplayer(url)
+		elif type == "text": 
+			if is_streaming_movie(req): # that one kind of streaming movie we can play
+				print('is streaming movie, getting url...')
+				play_omxplayer(get_streaming_url(url))
+			elif is_youtube_video(url): #pass url cause youtube is just a url
+				print('is youtube video, NOT IMPLEMENTED LEL')
+			else: #this only happens if all else fails :c
+				return 'bad url', 400 # u donged up man better fix it
+				
+		return '', 204 # success! :D but ff doesn't like 204s :c
+	except UnicodeDecodeError:
+		return 'bad url', 400
+		
 
 	
 def is_streaming_movie(req):
@@ -62,8 +68,9 @@ def is_youtube_video(url):
 	return (domain == "youtube")
 
 def play_omxplayer(uri):
+	print('playing %s in omxplayer' % uri)
 	player = OMXPlayer(uri, args='-b -r --audio_queue=10 --video_queue=40')
-	print(args)
+	print('launched successfully')
 	
 def send_input_to_omxplayer(input): #wow this should actually work :D
 	input_fifo = tmp_path + '/input_fifo'

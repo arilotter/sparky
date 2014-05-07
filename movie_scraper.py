@@ -51,4 +51,5 @@ def get_streaming_url(url):
 
 	flv_url = re.search("^url=(.+?)&", video_html).group(1)
 	title = re.search("title=(.+?)&", video_html).group(1)
+	print('url found, is %s' % flv_url)
 	return flv_url
