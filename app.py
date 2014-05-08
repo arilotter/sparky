@@ -1,11 +1,14 @@
 #!./bin/python3.4
 # dotslash for local
 from flask import Flask, render_template, request
-from urllib.request import urlopen
-from movie_scraper import get_streaming_url
+from urllib.request import urlopen, Request
 from urllib.parse import urlparse
 from omxplayer import OMXPlayer
+from youtube_dl import YoutubeDL
+from youtube_dl.utils import DownloadError
 import os
+import traceback
+import re
 app = Flask(__name__)
 
 #woohooo vars
@@ -13,6 +16,8 @@ base_path = '.' #woohoooo portability
 tmp_path = base_path + '/tmp'
 torrent_fifo = tmp_path + '/torrent_fifo'
 player = None
+
+ansi_escape = re.compile(r'\x1b[^m]*m')
 
 #video_exts = ['3gp', 'avchd', 'avi', 'flv', 'm2v', 'm4v', 'mkv', 'mov', 'mpeg', 'mpg', 'ogg', 'wmv']
 
@@ -43,39 +48,34 @@ def play_pause():
 @app.route('/play', methods=['GET'])
 def play_url():
 	url = request.args.get('url')
-	if not url.startswith('http'): #gets https too
+	if not url.startswith('http'): #gets https too :D
 		print('url missing http/wrong protocol')
-		#Let's assume it's http, not https
+		#Let's assume it's http, not https (kek)
 		url = 'http://' + url
 	print('looking up url %s' % url)
-	req = urlopen(url)
-	type = req.headers['content-type'].split('/')[0]
+	req = Request(url)
+	req.get_method = lambda : 'HEAD'
+	response = urlopen(req)
+	type = response.headers['content-type'].split('/')[0]
 	try:
 		if type == 'audio' or type == 'video':
 			play_omxplayer(url)
 		elif type == 'text': 
-			if is_streaming_movie(req): # that one kind of streaming movie we can play
-				print('is streaming movie, getting url...')
-				play_omxplayer(get_streaming_url(url))
-			elif is_youtube_video(url): #pass url cause youtube is just a url
-				print('is youtube video, not yet implemented')
-			else: #this only happens if all else fails :c
-				return 'bad url', 400 # u donged up man better fix it
+			print('page type is text, loading youtubeDL for further processing')
+			ydl = YoutubeDL({'outtmpl': '%(id)s%(ext)s'})
+			ydl.add_default_info_extractors()
+			result = ydl.extract_info(url, download=False)
+			if 'entries' in result:
+				video = result['entries'][0]
+			else:
+				video = result
+			play_omxplayer(video['url'])
+		else:
+			raise DownloadError('Invalid filetype: not audio, video, or text.')
 				
 		return '', 204 # success! :D but ff doesn't like 204s :c
-	except UnicodeDecodeError:
-		return 'bad url', 400
-		
-
-	
-def is_streaming_movie(req):
-	return ('var flashvars = {};' in req.read().decode('utf-8'))
-	
-def is_youtube_video(url):
-	print(url)
-	domain = '.'.join(urlparse(url).netloc.split('.')[-2:])
-	print(domain)
-	return (domain.startswith('youtube') or domain == 'youtu.be')
+	except (UnicodeDecodeError, DownloadError) as e:
+		return ansi_escape.sub('', str(e)), 400		
 
 def play_omxplayer(uri):
 	print('playing %s in omxplayer' % uri)
