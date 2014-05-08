@@ -19,8 +19,6 @@ player = None
 
 ansi_escape = re.compile(r'\x1b[^m]*m')
 
-#video_exts = ['3gp', 'avchd', 'avi', 'flv', 'm2v', 'm4v', 'mkv', 'mov', 'mpeg', 'mpg', 'ogg', 'wmv']
-
 @app.route('/')
 def splash():
 	return render_template('splash.html')
