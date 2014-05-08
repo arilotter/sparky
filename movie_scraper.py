@@ -1,4 +1,5 @@
-#!/usr/bin/env python3
+#!./bin/python3.4
+# dotslash for local
 from urllib.request import urlopen, Request
 from urllib.parse import urlencode
 import sys

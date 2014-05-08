@@ -1,4 +1,5 @@
-#!/home/ari/src/pi-htpc/bin/python3.4
+#!./python3.4
+# dotslash for local
 
 # -*- coding: utf-8 -*-
 import re
