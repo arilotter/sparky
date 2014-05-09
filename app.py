@@ -12,97 +12,109 @@ import traceback
 import re
 app = Flask(__name__)
 
-#woohooo vars
-base_path = '.' #woohoooo portability
+base_path = '.'  # sets the script's base directory for files/folders
 tmp_path = base_path + '/tmp'
 torrent_fifo = tmp_path + '/torrent_fifo'
 player = None
 
+# this regex is to escape terminal color codes.
 ansi_escape = re.compile(r'\x1b[^m]*m')
+
 
 @app.route('/about')
 def splash():
-	return render_template('splash.html')
+    return render_template('splash.html')
+
 
 @app.route('/')
-def root(): #redir to remote for now
-	return redirect('/remote')
+def root():  # redirect to remote for now, might change.
+    return redirect('/remote')
+
+
 @app.route('/remote/')
-def remote(): #woooo
-	return render_template('remote.html')
+def remote():
+    return render_template('remote.html')
+
+
 @app.route('/settings/')
-def settings(): #waaaaaa
-	return render_template('settings.html')
-	
-@app.route('/remote/send_key/<key>') #sending keys from the remote
-def send_key(key):
-	if key == 'left':
-		input = '\x1B\x5B\x44'
-	elif key == 'right':
-		input = '\x1B\x5B\x43'
-	else:
-		input = key
-	send_input_to_omxplayer(input)
-	return '', 204 #204 means success but no content. it worked :3
+def settings():
+    return render_template('settings.html')
+
+
+@app.route('/remote/send_key/<command>')  # sending keys from the remote
+def send_key(command):
+    if command == 'left':
+        keystroke = '\x1B\x5B\x44'  # keycode for left
+    elif command == 'right':
+        keystroke = '\x1B\x5B\x43'  # keycode for right
+    else:
+        keystroke = command
+    send_input_to_omxplayer(keystroke)
+    return '', 204  # 204 means success but no content. it worked :3
+
 
 @app.route('/remote/play_pause')
 def play_pause():
-	player.toggle_pause()
-	return 'dong'
-	
+    player.toggle_pause()
+    return 'dong'
+
+
 @app.route('/play', methods=['GET'])
 def play_url():
-	url = request.args.get('url') #grab ?url=*
-	
-	if not url.startswith('http'): # check if the user forgot to add http(s)://
-		print('url missing http/wrong protocol')
-		#Let's assume it's http, not https (kek)
-		url = 'http://' + url
-	print('recieved url %s' % url)
-	print('requesting headers from %s...' % url)
-	req = Request(url)
-	req.get_method = lambda : 'HEAD' # Only request Headers, no content
-	response = urlopen(req)
-	content_type = response.headers['content-type']
-	content_type_split = content_type.split('/')
-	print('headers recieved. content type is %s' % content_type)
-	
-	try:
-		if content_type_split[0] == 'audio' or url_split[0] == 'video':
-			print('url was raw media file, playing! :)')
-			play_omxplayer(url)
-		elif content_type_split[1] == 'x-bittorrent':
-			#then dl a torrent man
-			print('url type is torrent, loading btcat for further processing')
-			
-		elif content_type_split[0] == 'text': 
-			print('url type is text, loading youtube-dl for further processing')
-			ydl = YoutubeDL({'outtmpl': '%(id)s%(ext)s'})
-			ydl.add_default_info_extractors()
-			result = ydl.extract_info(url, download=False)
-			if 'entries' in result:
-				video = result['entries'][0]
-			else:
-				video = result
-			play_omxplayer(video['url'])
-		else:
-			raise DownloadError('Invalid filetype: not audio, video, or text.')
-				
-		return '', 204 # success! :D but ff doesn't like 204s :c
-	except (UnicodeDecodeError, DownloadError) as e:
-		return ansi_escape.sub('', str(e)), 400		
+    url = request.args.get('url')  # grab url from /play?url=*
+
+    if not url.startswith('http'):  # in case the user forgot it
+        print('url missing http/wrong protocol')
+        url = 'http://' + url  # let's assume it's http, not https
+
+    print('recieved url %s' % url)
+    print('requesting headers from %s...' % url)
+    req = Request(url)
+    req.get_method = lambda: 'HEAD'  # only request headers, no content
+    response = urlopen(req)
+    content_type = response.headers['content-type']
+    content_type_split = content_type.split('/')  # split into 2 parts
+    print('headers recieved. content type is %s' % content_type)
+
+    try:
+        if content_type_split[0] == 'audio' or url_split[0] == 'video':
+            print('url was raw media file, playing! :)')
+            play_omxplayer(url)
+        elif content_type_split[1] == 'x-bittorrent':
+            print('loading btcat for further processing')
+            # this isn't implemented yet.
+
+        elif content_type_split[0] == 'text':
+            print('loading youtube-dl for further processing')
+            ydl = YoutubeDL({'outtmpl': '%(id)s%(ext)s'})
+            ydl.add_default_info_extractors()
+            result = ydl.extract_info(url, download=False)
+            if 'entries' in result:
+                video = result['entries'][0]
+            else:
+                video = result
+            play_omxplayer(video['url'])
+        else:
+            raise DownloadError('Invalid filetype: not audio, video, or text.')
+
+        return '', 204  # success w/ no response!
+    except (UnicodeDecodeError, DownloadError) as e:
+        return ansi_escape.sub('', str(e)), 400  # send error message
+
 
 def play_omxplayer(uri):
-	print('playing %s in omxplayer' % uri)
-	player = OMXPlayer(uri, args='-b -r --audio_queue=10 --video_queue=40')
-	print('launched successfully')
-	
-def send_input_to_omxplayer(input): #wow this should actually work :D
-	input_fifo = tmp_path + '/input_fifo'
-	if not os.path.isfile(input_fifo):
-		os.mkfifo(input_fifo)
-	f = open(input_fifo, 'w')
-	f.write(input)
-	
+    print('playing %s in omxplayer' % uri)
+    player = OMXPlayer(uri, args='-b -r --audio_queue=10 --video_queue=40')
+    print('launched successfully')
+
+
+def send_input_to_omxplayer(key):
+    input_fifo = tmp_path + '/input_fifo'
+    if not os.path.isfile(input_fifo):
+        os.mkfifo(input_fifo)
+    f = open(input_fifo, 'w')
+    f.write(key)
+
+
 if __name__ == '__main__':
-	app.run('0.0.0.0', debug=True,) #DEBOOG
+    app.run('0.0.0.0', debug=True,)  # DEBOOG DON'T FORGET TO DISABLE
