@@ -52,22 +52,31 @@ def play_pause():
 	
 @app.route('/play', methods=['GET'])
 def play_url():
-	url = request.args.get('url')
-	if not url.startswith('http'): #gets https too :D
+	url = request.args.get('url') #grab ?url=*
+	
+	if not url.startswith('http'): # check if the user forgot to add http(s)://
 		print('url missing http/wrong protocol')
 		#Let's assume it's http, not https (kek)
 		url = 'http://' + url
-	print('looking up url %s' % url)
+	print('recieved url %s' % url)
+	print('requesting headers from %s...' % url)
 	req = Request(url)
-	req.get_method = lambda : 'HEAD'
+	req.get_method = lambda : 'HEAD' # Only request Headers, no content
 	response = urlopen(req)
-	type = response.headers['content-type'].split('/')[0]
+	content_type = response.headers['content-type']
+	content_type_split = content_type.split('/')
+	print('headers recieved. content type is %s' % content_type)
+	
 	try:
-		if type == 'audio' or type == 'video':
+		if content_type_split[0] == 'audio' or url_split[0] == 'video':
 			print('url was raw media file, playing! :)')
 			play_omxplayer(url)
-		elif type == 'text': 
-			print('url type is text, loading youtubeDL for further processing')
+		elif content_type_split[1] == 'x-bittorrent':
+			#then dl a torrent man
+			print('url type is torrent, loading btcat for further processing')
+			
+		elif content_type_split[0] == 'text': 
+			print('url type is text, loading youtube-dl for further processing')
 			ydl = YoutubeDL({'outtmpl': '%(id)s%(ext)s'})
 			ydl.add_default_info_extractors()
 			result = ydl.extract_info(url, download=False)
@@ -96,4 +105,4 @@ def send_input_to_omxplayer(input): #wow this should actually work :D
 	f.write(input)
 	
 if __name__ == '__main__':
-	app.run('0.0.0.0', debug=False,) #DEBOOG
+	app.run('0.0.0.0', debug=True,) #DEBOOG

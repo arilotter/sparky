@@ -1,0 +1,21 @@
+Metadata-Version: 2.0
+Name: youtube-dl
+Version: 2014.05.05
+Summary: YouTube video downloader
+Home-page: https://github.com/rg3/youtube-dl
+Author: Philipp Hagemeister
+Author-email: phihag@phihag.de
+License: UNKNOWN
+Platform: UNKNOWN
+Classifier: Topic :: Multimedia :: Video
+Classifier: Development Status :: 5 - Production/Stable
+Classifier: Environment :: Console
+Classifier: License :: Public Domain
+Classifier: Programming Language :: Python :: 2.6
+Classifier: Programming Language :: Python :: 2.7
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.3
+
+Small command-line program to download videos from YouTube.com and other video sites.
+
+

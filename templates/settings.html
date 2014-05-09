@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block title %}Settings{% endblock %}
+{% block content %}
+	<div class="input-group">
+		<span class="input-group-addon">Theme</span>
+		<select class="form-control change-theme">
+			<option rel="amelia">Amelia (Default)</option>
+			<option rel="cerulean">Cerulean</option>
+			<option rel="cosmo">Cosmo</option>
+			<option rel="darkly">Darkly</option>
+			<option rel="flatly">Flatly</option>
+			<option rel="journal">Journal</option>
+			<option rel="lumen">Lumen</option>
+			<option rel="slate">Slate</option>
+			<option rel="united">United</option>
+		</select>
+	</div>
+{% endblock %}
+
+{% block js %}
+//I'm about that theme changer, dawg
+$('body').on('change', '.change-theme', function() {
+	var theme_name = $('.change-theme option:selected').attr('rel');
+	var theme = "//bootswatch.com/" + theme_name + "/bootstrap.min.css";
+	set_theme(theme);
+
+});
+{% endblock %}
