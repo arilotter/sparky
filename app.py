@@ -1,6 +1,7 @@
-#!./bin/python3.4
+#!/usr/bin/env python3.4
+
 # dotslash for local
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, redirect
 from urllib.request import urlopen, Request
 from urllib.parse import urlparse
 from omxplayer import OMXPlayer
@@ -19,13 +20,19 @@ player = None
 
 ansi_escape = re.compile(r'\x1b[^m]*m')
 
-@app.route('/')
+@app.route('/about')
 def splash():
 	return render_template('splash.html')
 
+@app.route('/')
+def root(): #redir to remote for now
+	return redirect('/remote')
 @app.route('/remote/')
 def remote(): #woooo
 	return render_template('remote.html')
+@app.route('/settings/')
+def settings(): #waaaaaa
+	return render_template('settings.html')
 	
 @app.route('/remote/send_key/<key>') #sending keys from the remote
 def send_key(key):
