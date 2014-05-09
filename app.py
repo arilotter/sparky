@@ -64,9 +64,10 @@ def play_url():
 	type = response.headers['content-type'].split('/')[0]
 	try:
 		if type == 'audio' or type == 'video':
+			print('url was raw media file, playing! :)')
 			play_omxplayer(url)
 		elif type == 'text': 
-			print('page type is text, loading youtubeDL for further processing')
+			print('url type is text, loading youtubeDL for further processing')
 			ydl = YoutubeDL({'outtmpl': '%(id)s%(ext)s'})
 			ydl.add_default_info_extractors()
 			result = ydl.extract_info(url, download=False)
@@ -95,4 +96,4 @@ def send_input_to_omxplayer(input): #wow this should actually work :D
 	f.write(input)
 	
 if __name__ == '__main__':
-	app.run('0.0.0.0', debug=True,) #DEBOOG
+	app.run('0.0.0.0', debug=False,) #DEBOOG
