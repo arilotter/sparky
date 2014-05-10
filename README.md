@@ -1,4 +1,6 @@
-pi-htpc
+Sparky
 =======
 
-A collection of scripts/web stuff things to turn a pi into a remote controllable media player.
+A Flask app that lets you remote control omxplayer on a Raspberry Pi and throw all sorts of web media at it.
+Gets URLs directly through youtube-dl.
+This project is named after my grandmother's old dog (who died a while ago, but we still miss him)

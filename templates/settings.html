@@ -22,7 +22,7 @@
 //I'm about that theme changer, dawg
 $('body').on('change', '.change-theme', function() {
 	var theme_name = $('.change-theme option:selected').attr('rel');
-	var theme = "//bootswatch.com/" + theme_name + "/bootstrap.min.css";
+	var theme = "//cdnjs.cloudflare.com/ajax/libs/bootswatch/3.1.1-1/css/" + theme_name + "/bootstrap.min.css";
 	set_theme(theme);
 
 });

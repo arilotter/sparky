@@ -6,40 +6,21 @@
     <link rel="apple-touch-icon" href="/static/touch-icon.png">    
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-	<script src="//code.jquery.com/jquery-2.1.0.min.js" type="text/javascript"></script>
-    <script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js" type="text/javascript"></script>
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/bootswatch/3.1.1-1/css/amelia/bootstrap.min.css" type="text/css" title="theme">
+    
+    <link rel="stylesheet" href="/static/custom.css" type="text/css">
+    
+	<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.1/jquery.min.js" type="text/javascript"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.1.1/js/bootstrap.min.js" type="text/javascript"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/spin.js/2.0.0/spin.min.js" type="text/javascript"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/bootbox.js/4.2.0/bootbox.min.js" type="text/javascript"></script>
+    
     <script src="/static/local.js" type="text/javascript"></script>
-    <link rel="stylesheet" href="http://bootswatch.com/amelia/bootstrap.min.css" type="text/css" title="theme">
-    <link rel="stylesheet" href="/static/custom.css" type="text/css">
     
 </head>
 
 <body>
-    <header class="navbar navbar-default navbar-fixed-top" role="banner" id="slide-nav">
-        <div class="container">
-            <div class="navbar-header">
-				<button class="navbar-toggle" type="button">
-					<span class="sr-only">Toggle navigation</span>
-					<span class="icon-bar"></span>
-					<span class="icon-bar"></span>
-					<span class="icon-bar"></span>
-				</button>
-                <a class="navbar-brand" href="/">Pi HTPC | {% block title %}{% endblock %}</a>
-			</div>
-			<div id="slidemenu">
-			<!--<nav id="main-nav-collapse" class="collapse navbar-collapse" role="navigation">-->
-				<ul class="nav navbar-nav">
-					<li><a class="btn btn-primary" data-toggle="modal" data-target="#sendModal"><i class="glyphicon glyphicon-share-alt"></i> Send to Pi</a></li>
-					<li><a class="btn btn-link" href="/remote"><i class="glyphicon glyphicon-th"></i> Remote</a></li>
-					<li><a class="btn btn-link" href="/settings"><i class="glyphicon glyphicon-cog"></i> Settings</a></li>
-				</ul>
-			<!--</nav>-->
-			</div>
-            
-        </div>
-    </header>
+	{% include 'header.html' %}
     <div id="page-content">
 		<div class="container">
 		{% block content %}
@@ -47,78 +28,10 @@
 		</div>
 	</div>
 
-	<div class="modal fade" id="sendModal">
-		<div class="modal-dialog">
-			<div class="modal-content">
-			  <div class="modal-header">
-				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-				<h4 class="modal-title">Send to Pi</h4>
-			  </div>
-			  <div class="modal-body">
-				<p>Please paste/enter the URL of the content you'd like to send to the Pi.</p>
-				<div class="input-group">
-					<span class="input-group-addon">url</span>
-					<input type="text" class="form-control" id="send-to-pi-url" placeholder="http://example.com/">
-				</div>
-			  </div>
-			  <div class="modal-footer">
-				<button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-				<button type="button" class="btn btn-primary" data-dismiss="modal">Send!</button>
-			  </div>
-			</div>
-		</div>
-	</div>
-	<!-- this modal is fine as code, works okay. I COULD do it programatically but ehhh-->
-
     <script>
 		$(document).ready(function () {
 			{% block js%}{% endblock %}
-			
-bootbox.dialog({
-	title: "Send to Pi",
-	message: "Please paste/enter the URL of the content you'd like to send to the Pi."
-	buttons: {
-		send: {
-			label: "Send!",
-			className: "btn-primary",
-			callback: function() {
-				alert("Sent!");
-			}
-		},
-		cancel: {
-			label: "Cancel",
-			className: "btn-default",
-			callback
-		}
-	}
-});
-
 		});
-		
-		function activate_spinner() {
-			var opts = {
-				lines: 17, // The number of lines to draw
-				length: 0, // The length of each line
-				width: 8, // The line thickness
-				radius: 60, // The radius of the inner circle
-				corners: 0, // Corner roundness (0..1)
-				rotate: 0, // The rotation offset
-				direction: 1, // 1: clockwise, -1: counterclockwise
-				color: '#FFF', // #rgb or #rrggbb or array of colors
-				speed: 0.7, // Rounds per second
-				trail: 56, // Afterglow percentage
-				shadow: false, // Whether to render a shadow
-				hwaccel: true, // Whether to use hardware acceleration
-				className: 'spinner', // The CSS class to assign to the spinner
-				zIndex: 2e9, // The z-index (defaults to 2000000000)
-				top: '50%', // Top position relative to parent
-				left: '50%' // Left position relative to parent
-			};
-			
-			var target = document.getElementById('send-loading-spinner');
-			var spinner = new Spinner(opts).spin(target);
-		}
-		
     </script>
 </body>
 
