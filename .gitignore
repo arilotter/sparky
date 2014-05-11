@@ -1,0 +1,12 @@
+## generics
+*~
+*.lock
+*.DS_Store
+*.swp
+*.out
+
+## python and virtualenv
+*.pyc
+.env
+env
+__pycache__
