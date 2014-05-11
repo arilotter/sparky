@@ -44,10 +44,10 @@ def settings():
 @app.route('/remote/command/<command>')  # sending keys from the remote
 def omx_input(command):
     player = get_player()
-    try:
+    if player is not None:
         getattr(player, command)()
         return '', 204
-    except AttributeError as e:
+    else:
         return 'nothing playing', 400
 
 
@@ -55,10 +55,12 @@ def omx_input(command):
 def status():
     player = get_player()
     if player is not None:
-        dictionary = {'video_loaded': True, 'paused': player.paused}
+        dictionary = {'video_loaded': True,
+                      'paused': player.paused
+                      }
         return json.dumps(dictionary)
     else:
-        return json.dumps({'video_loaded': False}), 400
+        return json.dumps({'video_loaded': False})
 
 
 @app.route('/play', methods=['GET'])
