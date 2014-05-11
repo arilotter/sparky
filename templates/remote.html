@@ -5,24 +5,24 @@
 {% block content %}
 <div class="container controls">
 	<div class="row row-padded">
-		<a href="#" data-key="left" class="btn btn-default btn-xl col-xs-3">
+		<a href="#" data-command="back" class="btn btn-default btn-xl col-xs-3">
 			<i class="glyphicon glyphicon-step-backward"></i>
 		</a>
-		<a href="#" data-key="p" class="btn btn-success btn-xl col-xs-6">
+		<a href="#" data-command="toggle_pause" class="btn btn-success btn-xl col-xs-6">
 			<i class="glyphicon glyphicon-play"></i>/<i class="glyphicon glyphicon-pause"></i>
 		</a>
-		<a href="#" data-key="right" class="btn btn-default btn-xl col-xs-3">
+		<a href="#" data-command="forward" class="btn btn-default btn-xl col-xs-3">
 			<i class="glyphicon glyphicon-step-forward"></i>
 		</a>
 	</div>
 	<div class="row row-padded">
-		<a href="#" data-key="-" class="btn btn-default btn-xl col-xs-4">
+		<a href="#" data-command="vol_down" class="btn btn-default btn-xl col-xs-4">
 			<i class="glyphicon glyphicon-volume-down"></i>
 		</a>
-		<a href="#" data-key="q" class="btn btn-default btn-xl col-xs-4 btn-danger">
+		<a href="#" data-command="stop" class="btn btn-default btn-xl col-xs-4 btn-danger">
 			<i class="glyphicon glyphicon-stop"></i>
 		</a>
-		<a href="#" data-key="+" class="btn btn-default btn-xl col-xs-4">
+		<a href="#" data-command="vol_up" class="btn btn-default btn-xl col-xs-4">
 			<i class="glyphicon glyphicon-volume-up"></i>
 		</a>
 	</div>
@@ -32,7 +32,7 @@
 {% block js %}
 	$('.controls .btn').click(function () {
 		if (!($(this).hasClass('btn-danger') && !confirm("Are you sure you want to do that?"))) {
-			$.get('send_key/' + $(this).data('key'));
+			$.get('command/' + $(this).data('command'));
 		}
 		return false;
 	});

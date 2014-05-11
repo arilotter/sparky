@@ -1,8 +1,8 @@
 import pexpect
 import re
-
 from threading import Thread
 from time import sleep
+
 
 class OMXPlayer(object):
 
@@ -15,6 +15,8 @@ class OMXPlayer(object):
     _LAUNCH_CMD = '/usr/bin/omxplayer -s %s %s'
     _PAUSE_CMD = 'p'
     _TOGGLE_SUB_CMD = 's'
+    _BACK_CMD = '\x1B\x5B\x44'
+    _FORWARD_CMD = '\x1B\x5B\x43'
     _QUIT_CMD = 'q'
 
     paused = False
@@ -25,7 +27,7 @@ class OMXPlayer(object):
             args = ""
         cmd = self._LAUNCH_CMD % (mediafile, args)
         self._process = pexpect.spawn(cmd)
-        
+
         self.video = dict()
         self.audio = dict()
         # Get file properties
@@ -50,12 +52,21 @@ class OMXPlayer(object):
 
         #self._position_thread = Thread(target=self._get_position)
         #self._position_thread.start()
-        #shit 
 
         if not start_playback:
             self.toggle_pause()
         self.toggle_subtitles()
 
+    def has_finished(self):
+        # this should check for EOF
+        try:
+            self._process.expect('this should never happen', timeout=0.01)
+            return False
+        except pexpect.EOF as e:  # if this happens then file is over
+            return True
+        except pexpect.TIMEOUT as t:  # aww, still running
+            return False
+        #return self._process.eof()  # return true if omxplayer finished
 
     def _get_position(self):
         while True:
@@ -76,10 +87,24 @@ class OMXPlayer(object):
     def toggle_subtitles(self):
         if self._process.send(self._TOGGLE_SUB_CMD):
             self.subtitles_visible = not self.subtitles_visible
+            
     def stop(self):
-        self._process.send(self._QUIT_CMD)
-        self._process.terminate(force=True)
+        self._process.send(self._QUIT_CMD)  # tell omxplayer to quit
+        self._process.expect(pexpect.EOF)
+        #self._process.terminate(force=True)  # quit it forcefully in case of problems
+        
+    def back(self):
+        self._process.send(self._BACK_CMD)
+		
+    def forward(self):
+        self._process.send(self._FORWARD_CMD)
 
+    def vol_up(self):
+        pass
+        
+    def vol_down(self):
+        pass
+        
     def set_speed(self):
         raise NotImplementedError
 

@@ -78,7 +78,10 @@ function send_url_to_pi(url) {
 		if(xhr.status == 204 || xhr.status == 200) { //success!
 			bootbox.alert("Sent to Pi successfully!", function() {
 				//redirect to remote cause it's useful.
-				window.location.href = "/remote";
+                var s = window.location.href.split('/');
+                if(s[s.length - 2] != "remote") { //If we're not already there
+                    window.location.href = "/remote/";
+                }
 			});
 		} else {
 			bootbox.alert('Sending failed! Check the URL and try again.' + 
