@@ -2,6 +2,7 @@
 
 # dotslash for local
 from flask import Flask, render_template, request, redirect
+from werkzeug.contrib.fixers import ProxyFix
 from urllib.request import urlopen, Request
 from urllib.parse import urlparse
 from omxplayer import OMXPlayer
@@ -13,6 +14,7 @@ import re
 import json
 
 app = Flask(__name__)
+app.wsgi_app = ProxyFix(app.wsgi_app)
 
 base_path = '.'  # sets the script's base directory for files/folders
 player = None
