@@ -95,11 +95,17 @@ body.slide-active {
 	    top: -8px;
 	    margin: 0;
 	}
+    
 	#slide-nav #slidemenu .navbar-nav {
 	    min-width: 0;
 	    width: 100%;
 	    margin: 0;
 	}
+    
+    #slide-nav #slidemenu .navbar-nav li a {
+        line-height:46px;
+    }
+    
 	#slide-nav #slidemenu .navbar-nav .dropdown-menu li a {
 	    min-width: 0;
 	    width: 80%;

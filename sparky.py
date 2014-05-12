@@ -92,8 +92,8 @@ def play_url():  # this only plays http urls for now, torrents soon.
             ydl = YoutubeDL({'outtmpl': '%(id)s%(ext)s'})
             ydl.add_default_info_extractors()
             result = ydl.extract_info(url, download=False)
-            if 'entries' in result:
-                video = result['entries'][0]
+            if 'entries' in result:  # if video is a playlist
+                video = result['entries'][0]  # play the 1st video in the playlist
             else:
                 video = result
             play_omxplayer(video['url'])
