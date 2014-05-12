@@ -31,9 +31,10 @@ class OMXPlayer(object):
         self.video = dict()
         self.audio = dict()
         # Get file properties
-        file_props = self._FILEPROP_REXP.match(self._process.readline().decode('utf-8')).groups()
-        (self.audio['streams'], self.video['streams'],
-         self.chapters, self.subtitles) = [int(x) for x in file_props]
+        #file_props = self._FILEPROP_REXP.match(self._process.readline().decode('utf-8')).groups()
+        #(self.audio['streams'], self.video['streams'],
+        # self.chapters, self.subtitles) = [int(x) for x in file_props]
+        # File props don't appear to be a thing in omxplayer
         # Get video properties
         video_props = self._VIDEOPROP_REXP.match(self._process.readline().decode('utf-8')).groups()
         self.video['decoder'] = video_props[0]
