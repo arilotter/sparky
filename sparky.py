@@ -91,7 +91,7 @@ def play_url():  # this only plays http urls for now, torrents soon.
             # this isn't implemented yet.
         elif ctype_split[0] == 'text':
             print('loading youtube-dl for further processing')
-            ydl = YoutubeDL({'outtmpl': '%(id)s%(ext)s'})
+            ydl = YoutubeDL({'outtmpl': '%(id)s%(ext)s', 'restrictfilenames': True})
             ydl.add_default_info_extractors()
             result = ydl.extract_info(url, download=False)
             if 'entries' in result:  # if video is a playlist
