@@ -18,6 +18,7 @@ app.wsgi_app = ProxyFix(app.wsgi_app)
 
 base_path = '.'  # sets the script's base directory for files/folders
 player = None
+title = None
 
 # this regex is to escape terminal color codes.
 _ANSI_ESCAPE_REXP = re.compile(r"\x1b[^m]*m")
@@ -35,7 +36,7 @@ def root():  # redirect to remote for now, might change.
 
 @app.route('/remote/')
 def remote():
-    return render_template('remote.html')
+    return render_template('remote.html', title=title)
 
 
 @app.route('/settings/')
@@ -99,6 +100,8 @@ def play_url():  # this only plays http urls for now, torrents soon.
             else:
                 video = result
             play_omxplayer(video['url'])
+            global title
+            title = video['title']
         else:
             raise DownloadError('Invalid filetype: not audio, video, or text.')
 
@@ -115,11 +118,15 @@ def play_omxplayer(uri):
     player = OMXPlayer(uri,
                        args='-b -r --audio_queue=10 --video_queue=40',
                        start_playback=True)
-    
+
+
 def get_player():
     global player
     if player is not None and player.has_finished():
         player = None
+        title = None
     return player
+
+
 if __name__ == '__main__':
     app.run("0.0.0.0", debug=True)
