@@ -5,7 +5,7 @@
 {% block content %}
 <div class="container controls">
 	<div class="row row-padded text-center">
-        <h3>Now playing: {% if title is none %} unknown {% else %} {{ title }} {% endif %}</h3>
+        <h3>Now playing: <span class="nowplaying"></span></h3>
     </div>
     <div class="row row-padded">
 		<a href="#" data-command="back" class="btn btn-default btn-xl col-xs-3">
@@ -38,9 +38,15 @@
 	});
     
     function updateInfo() {
-        var j = {};
         $.getJSON('/status/', function(status) {
+            console.log(JSON.stringify(status));
             setRemoteEnabled(status.video_loaded);
+            if(status.now_playing == undefined) {
+                $('.nowplaying').text('nothing');
+            } else {
+                $('.nowplaying').text(status.now_playing);
+                console.log(status.now_playing);
+            }
             if(status.video_loaded) {
                 playpause = $('a[data-command="toggle_pause"] i');
                 if(status.paused) {
@@ -60,7 +66,6 @@
             if(en) {
                 // if we've become enabled
                 $('.controls .btn').removeAttr('disabled'); // Enables visually + functionally
-                
             } else {
                 // if we've become disabled
                 $('.controls .btn').attr('disabled', 'disabled'); // Disables visually + functionally

@@ -36,7 +36,7 @@ def root():  # redirect to remote for now, might change.
 
 @app.route('/remote/')
 def remote():
-    return render_template('remote.html', title=title)
+    return render_template('remote.html')
 
 
 @app.route('/settings/')
@@ -59,7 +59,8 @@ def status():
     player = get_player()
     if player is not None:
         dictionary = {'video_loaded': True,
-                      'paused': player.paused
+                      'paused': player.paused,
+                      'now_playing': title
                       }
         return json.dumps(dictionary)
     else:
