@@ -115,8 +115,7 @@ def play_omxplayer(uri):
     player = OMXPlayer(uri,
                        args='-b -r --audio_queue=10 --video_queue=40',
                        start_playback=True)
-
-
+    
 def get_player():
     global player
     if player is not None and player.has_finished():
