@@ -25,7 +25,7 @@ class OMXPlayer(object):
     def __init__(self, mediafile, args=None, start_playback=False):
         if not args:
             args = ""
-        cmd = self._LAUNCH_CMD % (mediafile, args)
+        cmd = self._LAUNCH_CMD % ('"' + mediafile + '"', args)
         self._process = pexpect.spawn(cmd)
         print('omxplayer started! getting info..')
         self.video = dict()
