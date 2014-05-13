@@ -109,12 +109,6 @@ class OMXPlayer(object):
 		
     def forward(self):
         self._process.send(self._FORWARD_CMD)
-
-    def vol_up(self):
-        pass
-        
-    def vol_down(self):
-        pass
         
     def set_speed(self):
         raise NotImplementedError
