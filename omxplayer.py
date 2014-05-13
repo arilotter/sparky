@@ -30,14 +30,20 @@ class OMXPlayer(object):
         print('omxplayer started! getting info..')
         self.video = dict()
         self.audio = dict()
+        
         # Get file properties
-        #file_props = self._FILEPROP_REXP.match(self._process.readline().decode('utf-8')).groups()
-        #(self.audio['streams'], self.video['streams'],
-        # self.chapters, self.subtitles) = [int(x) for x in file_props]
-        # File props don't appear to be a thing in omxplayer
-        # Get video properties
         line = self._process.readline().decode('utf-8')
         print(line)
+        file_props = self._FILEPROP_REXP.match(line).groups()
+        (self.audio['streams'], self.video['streams'],
+         self.chapters, self.subtitles) = [int(x) for x in file_props]
+        # File props don't appear to be a thing in omxplayer
+        # Get video properties
+        
+        line = self._process.readline().decode('utf-8')
+        
+        print(line)
+        
         video_props = self._VIDEOPROP_REXP.match(line).groups()
         self.video['decoder'] = video_props[0]
         self.video['dimensions'] = tuple(int(x) for x in video_props[1:3])
