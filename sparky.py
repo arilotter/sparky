@@ -44,14 +44,24 @@ def settings():
     return render_template('settings.html')
 
 
-@app.route('/remote/command/<command>')  # sending keys from the remote
-def omx_input(command):
+@app.route('/remote/omxplayer/<command>')  # sending keys from the remote
+def omxplayer_remote(command):
     player = get_player()
     if player is not None:
         getattr(player, command)()
         return '', 204
     else:
         return 'nothing playing', 400
+
+
+@app.route('/remote/system/<command>')
+def system_remote(command):
+    if command == "reboot":
+        print('rebooting!')
+        os.system("sudo reboot")
+    else:
+        return 'bad command', 400
+    return '', 204  # success!
 
 
 @app.route('/status/')

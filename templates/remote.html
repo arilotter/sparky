@@ -31,7 +31,7 @@
 {% block js %}
 	$('.controls .btn').click(function () {
 		if (!($(this).hasClass('btn-danger') && !confirm("Are you sure you want to do that?"))) {
-			$.get('command/' + $(this).data('command'));
+			$.get('/remote/omxplayer/' + $(this).data('command'));
             updateInfo();
 		}
 		return false;
@@ -39,7 +39,6 @@
     
     function updateInfo() {
         $.getJSON('/status/', function(status) {
-            console.log(JSON.stringify(status));
             setRemoteEnabled(status.video_loaded);
             if(status.now_playing == undefined) {
                 $('.nowplaying').text('nothing');
@@ -71,7 +70,7 @@
                 $('.controls .btn').attr('disabled', 'disabled'); // Disables visually + functionally
                 
             }
-            console.log('buttons enabled changed from ' + buttonsEnabled + ' to ' + en);
+            //console.log('buttons enabled changed from ' + buttonsEnabled + ' to ' + en);
             buttonsEnabled = en;
         }
     }
