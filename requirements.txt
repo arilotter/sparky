@@ -2,6 +2,9 @@ Flask==0.10.1
 Jinja2==2.7.2
 MarkupSafe==0.23
 Werkzeug==0.9.4
+-e git+https://github.com/eventlet/eventlet.git@cbd404d56e231ea5419f07795a12d7082dd70ec4#egg=eventlet-origin/python3
+greenlet==0.4.2
+gunicorn==18.0
 itsdangerous==0.24
 pexpect==3.2
 youtube-dl==2014.05.05

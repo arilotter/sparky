@@ -16,9 +16,9 @@ import json
 app = Flask(__name__)
 app.wsgi_app = ProxyFix(app.wsgi_app)
 
-base_path = '.'  # sets the script's base directory for files/folders
 player = None
 title = None
+last_logged_message = ""
 
 # this regex is to escape terminal color codes.
 _ANSI_ESCAPE_REXP = re.compile(r"\x1b[^m]*m")
@@ -57,7 +57,7 @@ def omxplayer_remote(command):
 @app.route('/remote/system/<command>')
 def system_remote(command):
     if command == "reboot":
-        print('rebooting!')
+        log('rebooting!')
         os.system("sudo reboot")
     else:
         return 'bad command', 400
@@ -68,13 +68,16 @@ def system_remote(command):
 def status():
     player = get_player()
     if player is not None:
-        dictionary = {'video_loaded': True,
-                      'paused': player.paused,
-                      'now_playing': title
-                      }
-        return json.dumps(dictionary)
+        dictionary = {
+            'video_loaded': True,
+            'paused': player.paused,
+            'now_playing': title
+        }
+        
     else:
-        return json.dumps({'video_loaded': False})
+        dictionary = {'video_loaded': False}
+    
+    return json.dumps(dictionary)
 
 
 @app.route('/play', methods=['GET'])
@@ -82,27 +85,27 @@ def play_url():  # this only plays http urls for now, torrents soon.
     url = request.args.get('url')  # grab url from /play?url=*
 
     if not url.startswith('http'):  # in case the user forgot it
-        print('url missing http/wrong protocol')
+        log('url missing http/wrong protocol')
         url = 'http://' + url  # let's assume it's http, not https
 
-    print('recieved url %s' % url)
-    print('requesting headers from %s...' % url)
+    log('received url %s' % url)
+    log('requesting headers from %s...' % url)
     req = Request(url)
     req.get_method = lambda: 'HEAD'  # only request headers, no content
     response = urlopen(req)
     ctype = response.headers['content-type']
     ctype_split = ctype.split('/')  # split into 2 parts
-    print('headers recieved. content type is %s' % ctype)
+    log('headers received. content type is %s' % ctype)
 
     try:
         if ctype_split[0] == 'audio' or ctype_split[0] == 'video':
-            print('url was raw media file, playing! :)')
+            log('url was raw media file, playing! :)')
             play_omxplayer(url)
         elif ctype_split[1] == 'x-bittorrent':
-            print('loading btcat for further processing')
+            log('loading torrents not implemented.')
             # this isn't implemented yet.
         elif ctype_split[0] == 'text':
-            print('loading youtube-dl for further processing')
+            log('loading youtube-dl for further processing')
             ydl = YoutubeDL({'outtmpl': '%(id)s%(ext)s', 'restrictfilenames': True})
             ydl.add_default_info_extractors()
             result = ydl.extract_info(url, download=False)
@@ -120,15 +123,31 @@ def play_url():  # this only plays http urls for now, torrents soon.
     except (UnicodeDecodeError, DownloadError) as e:
         return _ANSI_ESCAPE_REXP.sub('', str(e)), 400  # send error message
 
+@app.route("/log/")
+def gen_log():
+    return get_last_logged_message()
+
 
 def play_omxplayer(uri):
-    print('playing %s in omxplayer...' % uri)
+    log('playing %s in omxplayer...' % uri)
     global player
     if get_player() is not None:
         player.stop()
     player = OMXPlayer(uri,
                        args='-b -r --audio_queue=10 --video_queue=40',
                        start_playback=True)
+
+
+def log(text):
+    print("[sparky] %s" % text)
+    
+    global last_logged_message
+    last_logged_message = text
+
+
+def get_last_logged_message():
+    global last_logged_message
+    return last_logged_message
 
 
 def get_player():
