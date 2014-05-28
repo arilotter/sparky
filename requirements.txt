@@ -6,5 +6,7 @@ Werkzeug==0.9.4
 greenlet==0.4.2
 gunicorn==18.0
 itsdangerous==0.24
+livestreamer==1.8.1
 pexpect==3.2
+requests==2.3.0
 youtube-dl==2014.05.05
