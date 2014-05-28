@@ -112,6 +112,8 @@ def play_url():  # this only plays http urls for now, torrents soon.
             log('checking if url is a livestream...')
             live = Livestreamer()
             try:
+                if "youtube" in url:
+                    raise RuntimeError("youtube is fucked up w/ streaming, falling back to youtube-dl")
                 plugin = live.resolve_url(url)
                 streams = plugin.get_streams()
                 stream = streams.get("best")  # fingers crossed for best quality
@@ -123,7 +125,7 @@ def play_url():  # this only plays http urls for now, torrents soon.
                         title = "%s (livestream)" % url
                         play_omxplayer(getattr(stream, stream_type))
                         return '', 204
-            except PluginError as e:  # therefore url is not (supported) livestream
+            except (PluginError, RuntimeError) as e:  # therefore url is not (supported) livestream
                 pass  # continue and let youtube-dl try.
             
             log('loading youtube-dl for further processing')
