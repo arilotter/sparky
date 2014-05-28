@@ -8,6 +8,7 @@ from urllib.parse import urlparse
 from omxplayer import OMXPlayer
 from youtube_dl import YoutubeDL
 from youtube_dl.utils import DownloadError
+from livestreamer import Livestreamer, PluginError
 import os
 import traceback
 import re
@@ -82,6 +83,7 @@ def status():
 
 @app.route('/play', methods=['GET'])
 def play_url():  # this only plays http urls for now, torrents soon.
+    global title
     url = request.args.get('url')  # grab url from /play?url=*
 
     if not url.startswith('http'):  # in case the user forgot it
@@ -100,11 +102,30 @@ def play_url():  # this only plays http urls for now, torrents soon.
     try:
         if ctype_split[0] == 'audio' or ctype_split[0] == 'video':
             log('url was raw media file, playing! :)')
+            title = url  # i guess this works? :T
             play_omxplayer(url)
         elif ctype_split[1] == 'x-bittorrent':
             log('loading torrents not implemented.')
             # this isn't implemented yet.
         elif ctype_split[0] == 'text':
+            # here we check if it's a livestream, and if so get the RTMP url
+            log('checking if url is a livestream...')
+            live = Livestreamer()
+            try:
+                plugin = live.resolve_url(url)
+                streams = plugin.get_streams()
+                stream = streams.get("best")  # fingers crossed for best quality
+                
+                stream_url_types = ['rtmp', 'url']  # things that livestreamer can have :D
+                for stream_type in stream_url_types:
+                    if hasattr(stream, stream_type):
+                        log('url is livestream!')
+                        title = "%s (livestream)" % url
+                        play_omxplayer(getattr(stream, stream_type))
+                        return '', 204
+            except PluginError as e:  # therefore url is not (supported) livestream
+                pass  # continue and let youtube-dl try.
+            
             log('loading youtube-dl for further processing')
             ydl = YoutubeDL({'outtmpl': '%(id)s%(ext)s', 'restrictfilenames': True})
             ydl.add_default_info_extractors()
@@ -114,7 +135,6 @@ def play_url():  # this only plays http urls for now, torrents soon.
             else:
                 video = result
             play_omxplayer(video['url'])
-            global title
             title = video['title']
         else:
             raise DownloadError('Invalid filetype: not audio, video, or text.')
